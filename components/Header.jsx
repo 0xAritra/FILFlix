@@ -3,7 +3,7 @@ import Link from "next/link"
 
 const Header = () => {
   return (
-    <div className="pb-1 bg-gradient-to-r from-[#0090ff] to-[#E50914] sticky top-0">
+    <div className="pb-1 bg-gradient-to-r from-[#0090ff] to-[#E50914] sticky top-0 z-10">
       <div className="p-5 flex justify-around items-center h-full bg-[#08071B]">
         <h1 className="text-3xl text-[#0090ff]">
           <Link href={"/"}>
@@ -19,6 +19,9 @@ const Header = () => {
           </li>
           <li className="hover:underline hover:text-gray-500">
             <Link href={"/create"}>/ create</Link>
+          </li>
+          <li className="hover:underline hover:text-gray-500">
+            <Link href={"/subscribe"}>/ subscribe</Link>
           </li>
         </ul>
         <ConnectButton />

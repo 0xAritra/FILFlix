@@ -1,6 +1,7 @@
 import Head from "next/head"
 import Image from "next/image"
 import { Inter } from "@next/font/google"
+// import HomeCard from "@/components/HomeCard"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -13,7 +14,26 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div>Hello</div>
+
+      <>
+        {/* </> */}
+        <div className="p-1 bg-gradient-to-r from-[#0090ff] to-[#E50914] rounded-xl m-8 max-w-sm min-w-[80vw] mx-auto">
+          <div className="flex justify-between items-center p-8 text-center h-full min-w-[calc(80vw - 1rem)] bg-[#08071B] rounded-xl">
+            <div className="ml-32 space-y-2">
+              <h2 className="text-3xl text-right text-[#E50914]">collect.</h2>
+              <h2 className="text-3xl text-right text-[#0090ff]">CONTENT. 😁</h2>
+              <h2 className="text-3xl text-right text-[#0090ff]">MOVIES. 🎥</h2>
+              <h2 className="text-3xl text-right text-[#0090ff]">DOCUMENTS. 📄</h2>
+              <h2 className="text-3xl text-right text-[#0090ff]">MUSIC. 🎵</h2>
+            </div>
+            <div>
+              <img className="rounded-xl mr-32 w-[400px]" src="/hero.jpg" alt="" />
+            </div>
+          </div>
+        </div>
+
+        {/* </> */}
+      </>
     </>
   )
 }

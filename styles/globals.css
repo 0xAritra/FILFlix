@@ -8,3 +8,17 @@ body {
   color: white;
   font-family: "Poppins", sans-serif;
 }
+
+.file-upload {
+  margin: 1.5rem;
+}
+.file-types {
+  display: none;
+}
+.file-upload > label {
+  padding: 5rem 8rem;
+}
+.img-file label {
+  margin: auto;
+  padding: 4rem 9rem;
+}
