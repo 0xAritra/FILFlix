@@ -9,8 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lighthouse-web3/sdk": "^0.1.12",
     "@next/font": "13.1.4",
     "@rainbow-me/rainbowkit": "^0.8.1",
+    "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "next": "13.1.4",
     "react": "18.2.0",
