@@ -12,6 +12,11 @@ const CreateCard = () => {
   const [file1, setFile1] = useState(null)
   const [nft, setNft] = useState(null)
   const [content, setContent] = useState(null)
+  const [nftMetadata, setNftMetadata] = useState({
+    name: "",
+    description: "",
+    image: "",
+  })
 
   // const handleChange = (file) => {
   // console.log(file)
@@ -23,6 +28,35 @@ const CreateCard = () => {
   //   console.log(file1)
   //   setFile1(file1)
   // }
+
+  const applyAccessConditions = async () => {
+    const cid = content.substring(content.lastIndexOf("/") + 1)
+
+    const conditions = [
+      {
+        id: 1,
+        chain: "Hyperspace",
+        method: "balanceOf",
+        standardContractType: "ERC721",
+        contractAddress: "0x0Ef8BdC587CB444F66ed1f60DeD94d1d6F0fC128",
+        returnValueTest: { comparator: ">=", value: "1" },
+        parameters: [":userAddress"],
+      },
+    ]
+
+    const aggregator = "([1])"
+    const { publicKey, signedMessage } = await encryptionSignature()
+
+    const response = await lighthouse.accessCondition(
+      publicKey,
+      cid,
+      signedMessage,
+      conditions,
+      aggregator
+    )
+
+    console.log(response)
+  }
 
   const encryptionSignature = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
@@ -74,6 +108,17 @@ const CreateCard = () => {
     console.log(response)
     console.log("https://files.lighthouse.storage/viewFile/" + response.data.Hash)
     setContent("https://files.lighthouse.storage/viewFile/" + response.data.Hash)
+  }
+
+  const mintNft = () => {
+    setNftMetadata((prevNftMetadata) => ({ ...prevNftMetadata, image: nft }))
+    console.log(nftMetadata)
+
+    applyAccessConditions()
+  }
+
+  const onInput = (e) => {
+    setNftMetadata((prevNftMetadata) => ({ ...prevNftMetadata, [e.target.name]: e.target.value }))
   }
 
   return (
@@ -193,6 +238,8 @@ const CreateCard = () => {
                 name="name"
                 id="name"
                 required={true}
+                value={nftMetadata.name}
+                onChange={onInput}
               />
               <br />
               <textarea
@@ -202,6 +249,8 @@ const CreateCard = () => {
                 name="description"
                 id="description"
                 required={true}
+                value={nftMetadata.description}
+                onChange={onInput}
               />
               <br />
               <input
@@ -222,7 +271,10 @@ const CreateCard = () => {
                 required={true}
               />{" "}
               <br />
-              <button className="text-white bg-[#E50914] rounded-lg px-6 py-2 transform hover:scale-105">
+              <button
+                onClick={mintNft}
+                className="text-white bg-[#E50914] rounded-lg px-6 py-2 transform hover:scale-105"
+              >
                 Mint.
               </button>
             </div>

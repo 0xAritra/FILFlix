@@ -1,9 +1,23 @@
 import LibraryCard from "@/components/LibraryCard"
+import { SUBSCRIPTION_LIFETIME_ADDRESS, SUBSCRIPTION_LIFETIME_ADDRESS_ABI } from "@/constants"
 import Head from "next/head"
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { useAccount, useContractRead } from "wagmi"
 
 const library = () => {
   const data = [1, 2, 3, 4]
+  const [balance, setBalance] = useState(0)
+  const { address, isConnecting, isDisconnected } = useAccount()
+  const contractRead = useContractRead({
+    address: SUBSCRIPTION_LIFETIME_ADDRESS,
+    abi: SUBSCRIPTION_LIFETIME_ADDRESS_ABI,
+    functionName: "balanceOf",
+    args: [address],
+  })
+  useEffect(() => {
+    setBalance(contractRead.data)
+  }, [contractRead])
+
   return (
     <>
       <Head>
@@ -13,9 +27,20 @@ const library = () => {
       </Head>
       <h2 className="text-3xl underline text-center mt-8">Your Library</h2>
       <div className="flex flex-wrap justify-center items-center">
-        {data.map((i, idx) => (
-          <LibraryCard key={idx} />
-        ))}
+        {balance > 0 ? (
+          data.map((i, idx) => <LibraryCard key={idx} />)
+        ) : (
+          <h2 className="text-center m-4 text-lg">
+            Get the{" "}
+            <a className="underline" href="/subscribe">
+              subscription
+            </a>{" "}
+            or{" "}
+            <a href="/discover" className="underline">
+              buy some content!
+            </a>
+          </h2>
+        )}
       </div>
     </>
   )
