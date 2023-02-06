@@ -26,7 +26,7 @@ const tFil = {
 const { chains, provider } = configureChains([tFil], [publicProvider()])
 
 const { connectors } = getDefaultWallets({
-  appName: "My RainbowKit App",
+  appName: "FILFLix",
   chains,
 })
 

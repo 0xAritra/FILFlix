@@ -11,17 +11,17 @@ const Header = () => {
           </Link>
         </h1>
         <ul className="flex space-x-5">
-          <li className="hover:underline hover:text-gray-500">
+          <li className="text-[#E50914] hover:underline">
             <Link href={"/discover"}>/ discover</Link>
           </li>
-          <li className="hover:underline hover:text-gray-500">
+          <li className="text-[#E50914] hover:underline">
             <Link href={"/library"}>/ library</Link>
           </li>
-          <li className="hover:underline hover:text-gray-500">
-            <Link href={"/create"}>/ create</Link>
-          </li>
-          <li className="hover:underline hover:text-gray-500">
+          <li className="text-[#E50914] hover:underline">
             <Link href={"/subscribe"}>/ subscribe</Link>
+          </li>
+          <li className="text-[#0090ff] hover:underline">
+            <Link href={"/create"}>/ create</Link>
           </li>
         </ul>
         <ConnectButton />

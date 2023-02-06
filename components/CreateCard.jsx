@@ -1,7 +1,27 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 // import { FileUploader } from "react-drag-drop-files"
 import lighthouse from "@lighthouse-web3/sdk"
 import { ethers } from "ethers"
+import { prepareWriteContract, readContract, writeContract } from "@wagmi/core"
+import { CREATOR_ADDRESS, CREATOR_ABI } from "@/constants"
+
+//
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value])
+
+  return debouncedValue
+}
+//
 
 const CreateCard = () => {
   // const fileTypes = ["MP3", "MP4", "FLV", "MKV", "JPEG", "JPG", "PNG", "GIF", "PDF"]
@@ -13,11 +33,16 @@ const CreateCard = () => {
   const [nft, setNft] = useState(null)
   const [content, setContent] = useState(null)
   const [nftMetadata, setNftMetadata] = useState({
+    tokenId: null,
     name: "",
     description: "",
     image: "",
+    price: "",
+    supply: "",
+    content: "",
   })
-
+  const debouncedPrice = useDebounce(nftMetadata.price)
+  const debouncedSupply = useDebounce(nftMetadata.supply)
   // const handleChange = (file) => {
   // console.log(file)
   // setExt(file.name.split(".").pop().toLowerCase())
@@ -28,6 +53,10 @@ const CreateCard = () => {
   //   console.log(file1)
   //   setFile1(file1)
   // }
+
+  useEffect(() => {
+    getTokenId()
+  }, [])
 
   const applyAccessConditions = async () => {
     const cid = content.substring(content.lastIndexOf("/") + 1)
@@ -88,6 +117,10 @@ const CreateCard = () => {
     console.log("File Status:", output)
     setNft("https://gateway.lighthouse.storage/ipfs/" + output.data.Hash)
     console.log("Visit at https://gateway.lighthouse.storage/ipfs/" + output.data.Hash)
+    setNftMetadata((prevNftMetadata) => ({
+      ...prevNftMetadata,
+      image: "https://gateway.lighthouse.storage/ipfs/" + output.data.Hash,
+    }))
   }
 
   /* Deploy file along with encryption */
@@ -105,16 +138,51 @@ const CreateCard = () => {
       sig.signedMessage,
       progressCallback
     )
-    console.log(response)
+    // console.log(response)
     console.log("https://files.lighthouse.storage/viewFile/" + response.data.Hash)
     setContent("https://files.lighthouse.storage/viewFile/" + response.data.Hash)
+    setNftMetadata((prevNftMetadata) => ({
+      ...prevNftMetadata,
+      content: "https://files.lighthouse.storage/viewFile/" + response.data.Hash,
+    }))
   }
 
-  const mintNft = () => {
-    setNftMetadata((prevNftMetadata) => ({ ...prevNftMetadata, image: nft }))
-    console.log(nftMetadata)
+  const getTokenId = async () => {
+    const data = await readContract({
+      address: CREATOR_ADDRESS,
+      abi: CREATOR_ABI,
+      functionName: "tokenId",
+      chainId: 3141,
+    })
+    setNftMetadata((prevNftMetadata) => ({ ...prevNftMetadata, tokenId: Number(data) }))
+  }
 
-    applyAccessConditions()
+  const mintNft = async () => {
+    try {
+      // console.log(nftMetadata)
+
+      await applyAccessConditions()
+      // mint
+
+      const config = await prepareWriteContract({
+        mode: "recklesslyUnprepared",
+        address: CREATOR_ADDRESS,
+        abi: CREATOR_ABI,
+        functionName: "create",
+        args: [debouncedPrice.toString(), debouncedSupply.toString()],
+      })
+
+      const { hash } = await writeContract(config)
+      //
+      console.log(JSON.stringify(nftMetadata))
+
+      fetch("http://localhost:3000/api/create", {
+        method: "post",
+        body: JSON.stringify(nftMetadata),
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const onInput = (e) => {
@@ -124,7 +192,13 @@ const CreateCard = () => {
   return (
     <div className="p-1 bg-gradient-to-r from-[#0090ff] to-[#E50914] rounded-xl m-8">
       <div className="p-5 flex text-center justify-around items-center h-full bg-[#08071B] rounded-xl">
-        <form className="m-4" onSubmit={(e) => e.preventDefault()}>
+        <form
+          action="/api/create"
+          className="m-4"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
           {/* Step - 1 */}
           <div className="m-4">
             <h2 className="underline text-xl">Step 1: Upload File</h2>
@@ -260,6 +334,8 @@ const CreateCard = () => {
                 name="price"
                 id="price"
                 required={true}
+                onChange={onInput}
+                value={nftMetadata.price}
               />{" "}
               <br />
               <input
@@ -269,9 +345,12 @@ const CreateCard = () => {
                 name="supply"
                 id="supply"
                 required={true}
+                onChange={onInput}
+                value={nftMetadata.supply}
               />{" "}
               <br />
               <button
+                type="submit"
                 onClick={mintNft}
                 className="text-white bg-[#E50914] rounded-lg px-6 py-2 transform hover:scale-105"
               >

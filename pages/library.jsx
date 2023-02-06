@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react"
 import { useAccount, useContractRead } from "wagmi"
 
 const library = () => {
-  const data = [1, 2, 3, 4]
+  const [data, setData] = useState(null)
   const [balance, setBalance] = useState(0)
   const { address, isConnecting, isDisconnected } = useAccount()
   const contractRead = useContractRead({
@@ -14,6 +14,13 @@ const library = () => {
     functionName: "balanceOf",
     args: [address],
   })
+
+  useEffect(() => {
+    fetch("/api/discover")
+      .then((res) => res.json())
+      .then((data) => setData(data))
+  })
+
   useEffect(() => {
     setBalance(contractRead.data)
   }, [contractRead])
@@ -28,7 +35,7 @@ const library = () => {
       <h2 className="text-3xl underline text-center mt-8">Your Library</h2>
       <div className="flex flex-wrap justify-center items-center">
         {balance > 0 ? (
-          data.map((i, idx) => <LibraryCard key={idx} />)
+          data && data.map((i) => <LibraryCard key={i._id} props={i} />)
         ) : (
           <h2 className="text-center m-4 text-lg">
             Get the{" "}
