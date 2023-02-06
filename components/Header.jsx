@@ -20,6 +20,9 @@ const Header = () => {
           <li className="text-[#E50914] hover:underline">
             <Link href={"/subscribe"}>/ subscribe</Link>
           </li>
+          <li className="text-[#E50914] hover:underline">
+            <Link href={"/meet"}>/ meet</Link>
+          </li>
           <li className="text-[#0090ff] hover:underline">
             <Link href={"/create"}>/ create</Link>
           </li>
