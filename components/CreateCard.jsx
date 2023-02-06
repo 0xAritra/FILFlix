@@ -4,6 +4,9 @@ import lighthouse from "@lighthouse-web3/sdk"
 import { ethers } from "ethers"
 import { prepareWriteContract, readContract, writeContract } from "@wagmi/core"
 import { CREATOR_ADDRESS, CREATOR_ABI } from "@/constants"
+import { ToastContainer, toast } from "react-toastify"
+
+import "react-toastify/dist/ReactToastify.css"
 
 //
 const useDebounce = (value, delay) => {
@@ -158,28 +161,53 @@ const CreateCard = () => {
   }
 
   const mintNft = async () => {
-    try {
-      // console.log(nftMetadata)
+    try { 
+      toast.promise(
+        async () => {
+          // console.log(nftMetadata)
 
-      await applyAccessConditions()
-      // mint
+          await applyAccessConditions()
+          // mint
 
-      const config = await prepareWriteContract({
-        mode: "recklesslyUnprepared",
-        address: CREATOR_ADDRESS,
-        abi: CREATOR_ABI,
-        functionName: "create",
-        args: [debouncedPrice.toString(), debouncedSupply.toString()],
-      })
+          const config = await prepareWriteContract({
+            mode: "recklesslyUnprepared",
+            address: CREATOR_ADDRESS,
+            abi: CREATOR_ABI,
+            functionName: "create",
+            args: [debouncedPrice.toString(), debouncedSupply.toString()],
+          })
 
-      const { hash } = await writeContract(config)
-      //
-      console.log(JSON.stringify(nftMetadata))
+          const { hash } = await writeContract(config)
+          //
+          console.log(JSON.stringify(nftMetadata))
 
-      fetch("http://localhost:3000/api/create", {
-        method: "post",
-        body: JSON.stringify(nftMetadata),
-      })
+          fetch("http://localhost:3000/api/create", {
+            method: "post",
+            body: JSON.stringify(nftMetadata),
+          })
+        },
+        {
+          pending: {
+            render() {
+              return "Minting..."
+            },
+            icon: false,
+          },
+          success: {
+            render({ data }) {
+              return `Minted...`
+            },
+            // other options
+            icon: "🟢",
+          },
+          error: {
+            render({ data }) {
+              // When the promise reject, data will contains the error
+              return <MyErrorComponent message={data.message} />
+            },
+          },
+        }
+      )
     } catch (error) {
       console.error(error)
     }
@@ -360,6 +388,7 @@ const CreateCard = () => {
           </div>
         </form>
       </div>
+      <ToastContainer />
     </div>
   )
 }
